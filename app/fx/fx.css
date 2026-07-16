@@ -1,0 +1,196 @@
+/* Chappie Showcase — motion & surface primitives.
+   Zero dependencies: pure CSS scroll-driven animation, View Transitions,
+   container queries, and progressive enhancement. Everything degrades to
+   a visible, static state when a feature (or reduced-motion) is unsupported. */
+
+/* ----------------------------------------------------------------------------
+   Scroll-driven reveal (CSS Scroll-linked Animations, no JS/IntersectionObserver)
+   Browsers without animation-timeline run the animation once at 0s → end state,
+   so content stays visible. Reduced-motion opts out entirely.
+---------------------------------------------------------------------------- */
+@keyframes sx-rise {
+  from { opacity: 0; transform: translateY(42px) scale(0.985); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes sx-blur-in {
+  from { opacity: 0; filter: blur(14px); transform: translateY(28px); }
+  to   { opacity: 1; filter: blur(0);    transform: translateY(0); }
+}
+
+.sx-reveal {
+  animation: sx-rise linear both;
+  animation-timeline: view();
+  animation-range: entry 2% cover 34%;
+}
+.sx-reveal--blur {
+  animation-name: sx-blur-in;
+}
+.sx-reveal--stagger > * {
+  animation: sx-rise linear both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 40%;
+}
+.sx-reveal--stagger > *:nth-child(2) { animation-range: entry 4% cover 44%; }
+.sx-reveal--stagger > *:nth-child(3) { animation-range: entry 8% cover 48%; }
+.sx-reveal--stagger > *:nth-child(4) { animation-range: entry 12% cover 52%; }
+
+/* ----------------------------------------------------------------------------
+   Hero copy fade-out — tied to document scroll as the pinned hero orbits.
+   Gated behind @supports so browsers without scroll timelines keep the copy
+   fully visible (a 0s fade-out would otherwise hide it).
+---------------------------------------------------------------------------- */
+@supports (animation-timeline: scroll()) {
+  @keyframes sx-fade-out {
+    to { opacity: 0; transform: translateY(-26px); filter: blur(6px); }
+  }
+  .sx-hero-copy {
+    animation: sx-fade-out linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 6vh 46vh;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   Scroll-progress bar driven entirely by the document scroll timeline.
+---------------------------------------------------------------------------- */
+@keyframes sx-scalex { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.sx-progress {
+  transform-origin: 0 50%;
+  animation: sx-scalex linear both;
+  animation-timeline: scroll(root block);
+}
+
+/* ----------------------------------------------------------------------------
+   Infinite marquee / ticker.
+---------------------------------------------------------------------------- */
+@keyframes sx-marquee { to { transform: translateX(-50%); } }
+.sx-marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: sx-marquee 28s linear infinite;
+  will-change: transform;
+}
+.sx-marquee:hover .sx-marquee-track { animation-play-state: paused; }
+
+/* ----------------------------------------------------------------------------
+   Aurora UI — soft animated color fields (Stripe/Linear/Vercel signature look).
+   Conic + radial gradients drifting under a blur.
+---------------------------------------------------------------------------- */
+@keyframes sx-aurora-drift {
+  0%   { transform: translate3d(-8%, -6%, 0) rotate(0deg)   scale(1.15); }
+  50%  { transform: translate3d(8%, 6%, 0)   rotate(140deg) scale(1.35); }
+  100% { transform: translate3d(-8%, -6%, 0) rotate(360deg) scale(1.15); }
+}
+.sx-aurora {
+  position: absolute;
+  inset: -25%;
+  filter: blur(64px) saturate(135%);
+  opacity: 0.5;
+  background:
+    radial-gradient(38% 44% at 30% 32%, rgba(201,164,55,0.55), transparent 62%),
+    radial-gradient(34% 40% at 72% 60%, rgba(139,74,43,0.5), transparent 60%),
+    conic-gradient(from 120deg at 55% 45%, rgba(201,164,55,0.18), rgba(139,74,43,0.16), rgba(201,164,55,0.18));
+  animation: sx-aurora-drift 24s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* ----------------------------------------------------------------------------
+   Film grain overlay — the "analog texture over digital" trend.
+   Pure SVG fractal noise, no image asset.
+---------------------------------------------------------------------------- */
+.sx-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ----------------------------------------------------------------------------
+   Gradient / shimmer text.
+---------------------------------------------------------------------------- */
+@keyframes sx-shimmer { to { background-position: 200% center; } }
+.sx-grad-text {
+  background: linear-gradient(100deg, #c9a437 0%, #faf7ee 35%, #8b4a2b 60%, #c9a437 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: sx-shimmer 6s linear infinite;
+}
+
+/* ----------------------------------------------------------------------------
+   Conic spinning border (animated @property — modern gradient angle anim).
+---------------------------------------------------------------------------- */
+@property --sx-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes sx-spin { to { --sx-angle: 360deg; } }
+.sx-ring {
+  position: relative;
+  isolation: isolate;
+}
+.sx-ring::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--sx-angle), transparent 55%, rgba(201,164,55,0.9), transparent 90%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: sx-spin 4s linear infinite;
+  z-index: -1;
+}
+
+/* ----------------------------------------------------------------------------
+   Tilt + magnetic helpers (JS sets the CSS vars; CSS owns the transition).
+---------------------------------------------------------------------------- */
+.sx-tilt {
+  transform: perspective(900px)
+             rotateX(var(--sx-rx, 0deg))
+             rotateY(var(--sx-ry, 0deg))
+             translateZ(0);
+  transition: transform 0.18s ease-out;
+  transform-style: preserve-3d;
+}
+.sx-tilt__sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--sx-sheen, 0);
+  background: radial-gradient(
+    260px circle at var(--sx-mx, 50%) var(--sx-my, 50%),
+    rgba(201,164,55,0.22), transparent 60%);
+  transition: opacity 0.25s ease;
+}
+.sx-magnetic {
+  transform: translate3d(var(--sx-tx, 0), var(--sx-ty, 0), 0);
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+/* ----------------------------------------------------------------------------
+   Reduced motion: stop every looping/scroll animation, show the end state.
+---------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .sx-reveal,
+  .sx-reveal--stagger > *,
+  .sx-hero-copy,
+  .sx-progress,
+  .sx-marquee-track,
+  .sx-aurora,
+  .sx-grad-text,
+  .sx-ring::before {
+    animation: none !important;
+  }
+  .sx-reveal,
+  .sx-reveal--stagger > *,
+  .sx-hero-copy { opacity: 1 !important; filter: none !important; transform: none !important; }
+  .sx-grad-text { background-position: 0 center; }
+}

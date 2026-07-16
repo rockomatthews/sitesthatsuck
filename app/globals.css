@@ -1,8 +1,18 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Chappie Works palette — shared with the fx components ported from
+     chappieworks (they read --color-gold etc.). --gold is the local alias. */
+  --color-ink: #0b0b0c;
+  --color-raven: #131315;
+  --color-paper: #faf7ee;
+  --color-gold: #c9a437;
+  --color-mute: #8a857a;
+  --color-rust: #b4552d;
+  --gold: var(--color-gold);
+
+  --background: var(--color-ink);
+  --foreground: var(--color-paper);
 }
 
 @theme inline {
@@ -12,15 +22,17 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+.mono {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
