@@ -5,6 +5,7 @@ import { readRoast } from "../../lib/store";
 import { scoreLabel } from "../../lib/roast";
 import { UnlockFixes } from "./UnlockFixes";
 import { ShareRow } from "./ShareRow";
+import { TalkingChappie } from "./TalkingChappie";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,8 @@ export default async function RoastPage({ params }: Props) {
           &ldquo;{roast.verdict}&rdquo;
         </h1>
         <p className="mt-4 leading-relaxed text-white/85">{roast.chappie}</p>
+
+        <TalkingChappie roastId={id} />
 
         <dl className="mt-8 space-y-4 border-t border-white/10 pt-6 text-sm">
           {[

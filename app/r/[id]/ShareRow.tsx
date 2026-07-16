@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Share mechanics — the whole point. One-tap X share with pre-written copy,
 // plus copy-link. The OG card does the visual work wherever it lands.
@@ -16,7 +16,12 @@ export function ShareRow({
   verdict: string;
 }) {
   const [copied, setCopied] = useState(false);
-  const url = typeof window !== "undefined" ? `${window.location.origin}/r/${id}` : `/r/${id}`;
+  // Origin is browser-only — resolve after mount so SSR and client render the
+  // same tree (relative URL first paint, absolute once hydrated).
+  const [url, setUrl] = useState(`/r/${id}`);
+  useEffect(() => {
+    setUrl(`${window.location.origin}/r/${id}`);
+  }, [id]);
   const text = `An AI just roasted ${host}: ${score}/100 suck score.\n\n"${verdict}"\n\n`;
 
   return (
