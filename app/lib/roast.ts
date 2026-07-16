@@ -36,7 +36,7 @@ export async function generateRoast(facts: SiteFacts): Promise<Roast> {
 
   const msg = await anthropic.messages.create({
     model: "claude-sonnet-5",
-    max_tokens: 1200,
+    max_tokens: 3000,
     system: SYSTEM,
     messages: [
       {
@@ -48,8 +48,15 @@ export async function generateRoast(facts: SiteFacts): Promise<Roast> {
 
   const block = msg.content[0];
   const text = block.type === "text" ? block.text : "";
-  const json = text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
-  const r = JSON.parse(json) as Roast;
+  if (msg.stop_reason === "max_tokens") {
+    throw new Error("roast truncated (max_tokens) — raise the limit");
+  }
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start === -1 || end <= start) {
+    throw new Error(`roast returned no JSON (stop=${msg.stop_reason})`);
+  }
+  const r = JSON.parse(text.slice(start, end + 1)) as Roast;
 
   // Clamp + sanity so a weird generation can't break the card.
   r.score = Math.max(0, Math.min(100, Math.round(r.score)));
