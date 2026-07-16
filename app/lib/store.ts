@@ -51,7 +51,18 @@ export async function readRoast(id: string): Promise<RoastRecord | null> {
 // Editorial index: newest roasts for the homepage (we publish 2/day). Fetches
 // the N most recent records; the page revalidates so this stays cheap.
 export async function listRoasts(limit = 14): Promise<RoastRecord[]> {
-  const { blobs } = await list({ prefix: "roasts/" });
+  // Fail soft: at build time (or if the blob store isn't provisioned yet)
+  // the homepage renders its empty state instead of failing the deploy.
+  let blobs;
+  try {
+    ({ blobs } = await list({ prefix: "roasts/" }));
+  } catch (err) {
+    console.error(
+      "[sitesthatsuck] listRoasts failed",
+      err instanceof Error ? err.message : err,
+    );
+    return [];
+  }
   const newest = blobs
     .filter((b) => b.pathname.endsWith(".json"))
     .sort(
