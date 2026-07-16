@@ -48,6 +48,31 @@ export async function readRoast(id: string): Promise<RoastRecord | null> {
   return null;
 }
 
+// Editorial index: newest roasts for the homepage (we publish 2/day). Fetches
+// the N most recent records; the page revalidates so this stays cheap.
+export async function listRoasts(limit = 14): Promise<RoastRecord[]> {
+  const { blobs } = await list({ prefix: "roasts/" });
+  const newest = blobs
+    .filter((b) => b.pathname.endsWith(".json"))
+    .sort(
+      (a, b) =>
+        new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime(),
+    )
+    .slice(0, limit);
+  const recs = await Promise.all(
+    newest.map(async (b) => {
+      try {
+        const res = await fetch(`${b.url}?v=${Date.now()}`, { cache: "no-store" });
+        if (!res.ok) return null;
+        return (await res.json()) as RoastRecord;
+      } catch {
+        return null;
+      }
+    }),
+  );
+  return recs.filter((r): r is RoastRecord => r !== null);
+}
+
 // The client list. One JSON per lead: email + which site they roasted + what
 // the roast diagnosed — a pre-qualified pipeline for the studio's SKUs.
 export async function writeLead(lead: {

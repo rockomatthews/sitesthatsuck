@@ -7,25 +7,22 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
-// Cheap in-memory throttle per instance (serverless = best-effort, fine for v1).
-const recent = new Map<string, number>();
-
+// EDITORIAL ONLY (Sire's call): the public never roasts directly — the studio
+// picks 2 victims a day and publishes via this endpoint with the admin secret.
 export async function POST(req: Request) {
+  const secret = process.env.ADMIN_SECRET;
+  if (!secret || req.headers.get("x-admin-secret") !== secret) {
+    return NextResponse.json(
+      { error: "Chappie picks the victims. Nominate one on the homepage." },
+      { status: 403 },
+    );
+  }
+
   const body = (await req.json().catch(() => ({}))) as { url?: string };
   const url = (body.url ?? "").trim();
   if (!url || url.length > 300) {
     return NextResponse.json({ error: "give Chappie a URL" }, { status: 400 });
   }
-
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0] ?? "unknown";
-  const last = recent.get(ip) ?? 0;
-  if (Date.now() - last < 10_000) {
-    return NextResponse.json(
-      { error: "Chappie roasts one site at a time. Wait a moment." },
-      { status: 429 },
-    );
-  }
-  recent.set(ip, Date.now());
 
   try {
     const facts = await inspectSite(url);
