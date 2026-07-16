@@ -17,15 +17,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!rec) return { title: "Roast not found" };
   const host = new URL(rec.facts.finalUrl).hostname;
   const title = `${host} scored ${rec.roast.score}/100 — ${scoreLabel(rec.roast.score)}`;
+  // Page-level openGraph replaces the layout's wholesale — carry the full set
+  // so iMessage/X previews keep site name + absolute urls on roast links.
   return {
     title,
     description: rec.roast.verdict,
+    alternates: { canonical: `/r/${id}` },
     openGraph: {
+      type: "article",
+      url: `/r/${id}`,
+      siteName: "Sites That Suck",
+      title,
+      description: rec.roast.verdict,
+      images: [
+        {
+          url: `/r/${id}/og`,
+          width: 1200,
+          height: 630,
+          alt: `${host} — Chappie's roast card, ${rec.roast.score}/100 suck score`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      site: "@chappieworks",
+      creator: "@chappieworks",
       title,
       description: rec.roast.verdict,
       images: [`/r/${id}/og`],
     },
-    twitter: { card: "summary_large_image" },
   };
 }
 

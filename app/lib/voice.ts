@@ -5,12 +5,15 @@
 
 import { put, list } from "@vercel/blob";
 
-const VOICE_KEY = (id: string) => `voices/${id}.mp3`;
+// v2 prefix: bumping this regenerates every cached voice with the new
+// instructions (old v1 files just go stale in blob).
+const VOICE_KEY = (id: string) => `voices/v2/${id}.mp3`;
 
-const VOICE_INSTRUCTIONS = `Affect: a cheeky robot with a distinct South African accent (Johannesburg township English — short vowels, clipped consonants, rising inflection).
+const VOICE_INSTRUCTIONS = `Voice identity: a YOUNG robot — sounds like an excitable teenage boy made of metal. Higher-pitched, boyish, never deep or adult.
+Accent: THICK South African English (Johannesburg) — flat clipped vowels ("yes" sounds like "yis", "man" like "mahn"), clipped consonants, rising inflection at phrase ends. The accent must be unmistakable in every sentence.
+Timbre: distinctly ROBOTIC and synthesized — metallic edge, slightly flattened digital tone, tiny mechanical stutters on some word starts, like speech through a small speaker.
 Tone: childlike, mischievous, giggly — he finds bad websites genuinely funny, like a kid who can't hold it in.
-Delivery: quick, bouncy, with small laughs and chuckles breaking through between phrases. Slightly synthetic, robotic edge.
-Pacing: fast but clear. Punchlines land with a beat before them.`;
+Delivery: quick and bouncy, small giggles and chuckles breaking through between phrases. Punchlines land with a tiny beat before them.`;
 
 export async function getOrCreateVoice(
   id: string,

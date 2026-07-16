@@ -14,15 +14,52 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://chappiebarks.com"),
-  title: "sites that suck — Chappie roasts your website",
-  description:
-    "Paste a URL. An AI studio's seven personas roast the design, code, speed and copy in 30 seconds — with a suck score, a shareable card, and the actual fixes.",
-  openGraph: {
-    title: "sites that suck — get your website roasted by Chappie",
-    description:
-      "A suck score out of 100, a savage verdict, and the real fixes. Free.",
+  title: {
+    default: "Sites That Suck — two websites a day, roasted by a robot",
+    template: "%s · Sites That Suck",
   },
-  twitter: { card: "summary_large_image" },
+  description:
+    "Every day Chappie the robot picks two websites and takes them apart — design, code, speed, copy. A suck score, a savage verdict, and the actual fixes.",
+  applicationName: "Sites That Suck",
+  keywords: [
+    "website roast",
+    "website critique",
+    "web design review",
+    "site audit",
+    "Chappie",
+  ],
+  // iMessage pulls og:title / og:image / og:site_name — all absolute via
+  // metadataBase; opengraph-image.tsx supplies the card automatically.
+  openGraph: {
+    type: "website",
+    url: "https://chappiebarks.com",
+    siteName: "Sites That Suck",
+    title: "Sites That Suck — two websites a day, roasted by a robot",
+    description:
+      "Chappie picks two victims a day. Suck scores, savage verdicts, real fixes. He laughs because it's funny.",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@chappieworks",
+    creator: "@chappieworks",
+    title: "Sites That Suck — two websites a day, roasted by a robot",
+    description:
+      "Chappie picks two victims a day. Suck scores, savage verdicts, real fixes.",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Sites That Suck",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: { telephone: false },
+  robots: { index: true, follow: true },
+};
+
+export const viewport = {
+  themeColor: "#0b0b0c",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({
