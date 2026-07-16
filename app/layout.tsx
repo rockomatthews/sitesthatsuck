@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://chappiebarks.com"),
   title: "sites that suck — Chappie roasts your website",
   description:
     "Paste a URL. An AI studio's seven personas roast the design, code, speed and copy in 30 seconds — with a suck score, a shareable card, and the actual fixes.",

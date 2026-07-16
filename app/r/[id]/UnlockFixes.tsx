@@ -44,14 +44,14 @@ export function UnlockFixes({ id, fixCount }: { id: string; fixCount: number }) 
         <p className="mt-6 text-sm text-white/70">
           Want Chappie to just do all of it?{" "}
           <a
-            href="https://chappieworks.com/website?utm_source=sitesthatsuck&utm_medium=fixes&utm_campaign=unlock"
+            href="https://chappieworks.com/website?utm_source=chappiebarks&utm_medium=fixes&utm_campaign=unlock"
             className="text-[var(--gold)] underline underline-offset-4 hover:opacity-80"
           >
             $99 and the studio rebuilds your site
           </a>
           , or{" "}
           <a
-            href="https://chappieworks.com/seo-fix?utm_source=sitesthatsuck&utm_medium=fixes&utm_campaign=unlock"
+            href="https://chappieworks.com/seo-fix?utm_source=chappiebarks&utm_medium=fixes&utm_campaign=unlock"
             className="text-[var(--gold)] underline underline-offset-4 hover:opacity-80"
           >
             $499 ships every fix as one PR

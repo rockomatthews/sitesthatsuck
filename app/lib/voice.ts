@@ -16,8 +16,15 @@ export async function getOrCreateVoice(
   id: string,
   script: string,
 ): Promise<{ url: string } | { error: string }> {
-  const key = VOICE_KEY(id);
+  return ttsCached(VOICE_KEY(id), script);
+}
 
+// Generic cached TTS: any blob key, any script — used for the roast
+// narrations and the homepage barks.
+export async function ttsCached(
+  key: string,
+  script: string,
+): Promise<{ url: string } | { error: string }> {
   // cached?
   const { blobs } = await list({ prefix: key });
   const hit = blobs.find((b) => b.pathname === key);

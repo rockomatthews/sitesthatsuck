@@ -3,6 +3,7 @@ import "./fx/fx.css";
 import { ShaderHero, CursorGlow } from "./fx/ShowcaseClient";
 import ChappieHero from "./fx/ChappieHero";
 import { AutoLaugh } from "./AutoLaugh";
+import { ChappiePoke } from "./ChappiePoke";
 import { Nominate } from "./Nominate";
 import { listRoasts } from "./lib/store";
 import { scoreLabel } from "./lib/roast";
@@ -23,6 +24,13 @@ export default async function Home() {
       <section className="relative flex min-h-[92vh] items-center overflow-hidden px-6 sm:px-10">
         <ShaderHero />
         <ChappieHero />
+        <ChappiePoke
+          roasts={roasts.slice(0, 6).map((r) => ({
+            id: r.id,
+            host: new URL(r.facts.finalUrl).hostname.replace(/^www\./, ""),
+            score: r.roast.score,
+          }))}
+        />
         <div className="pointer-events-none relative z-10 mx-auto w-full max-w-5xl">
           <p className="mono text-xs uppercase tracking-[0.3em] text-[var(--gold)]">
             sites that suck · two victims a day · judged by an actual robot
@@ -36,6 +44,9 @@ export default async function Home() {
             take them apart — the design, the code, the speed, the copy. With
             receipts, a suck score, and the actual fixes. That&rsquo;s Chappie.
             He laughs because it&rsquo;s funny.
+          </p>
+          <p className="mono mt-6 text-xs uppercase tracking-[0.25em] text-[var(--gold)]/80 [text-shadow:0_1px_16px_rgba(11,11,12,0.7)]">
+            psst — touch Chappie. he has opinions.
           </p>
         </div>
       </section>
@@ -128,7 +139,7 @@ export default async function Home() {
           <p className="max-w-lg text-sm leading-relaxed text-white/70">
             Built by{" "}
             <a
-              href="https://chappieworks.com?utm_source=sitesthatsuck&utm_medium=home&utm_campaign=footer"
+              href="https://chappieworks.com?utm_source=chappiebarks&utm_medium=home&utm_campaign=footer"
               className="text-[var(--gold)] hover:underline"
             >
               Chappie Works

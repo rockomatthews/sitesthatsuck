@@ -55,7 +55,7 @@ export async function inspectSite(rawUrl: string): Promise<SiteFacts> {
     redirect: "follow",
     headers: {
       "user-agent":
-        "Mozilla/5.0 (compatible; ChappieRoastBot/1.0; +https://sitesthatsuck.ai)",
+        "Mozilla/5.0 (compatible; ChappieRoastBot/1.0; +https://chappiebarks.com)",
       accept: "text/html,application/xhtml+xml",
     },
     signal: AbortSignal.timeout(15000),

@@ -41,9 +41,18 @@ function ChappieRunner() {
   // Extra clips ship as tiny animation-only GLBs (same mixamorig skeleton, so
   // the tracks bind straight onto the main model's bones).
   const laugh = useGLTF("/models/chappie-laugh.glb");
+  const yell = useGLTF("/models/chappie-yell.glb");
+  const charge = useGLTF("/models/chappie-charge.glb");
+  const yelling = useGLTF("/models/chappie-yelling.glb");
   const allClips = useMemo(
-    () => [...animations, ...laugh.animations],
-    [animations, laugh.animations],
+    () => [
+      ...animations,
+      ...laugh.animations,
+      ...yell.animations,
+      ...charge.animations,
+      ...yelling.animations,
+    ],
+    [animations, laugh.animations, yell.animations, charge.animations, yelling.animations],
   );
   const { actions } = useAnimations(allClips, group);
   const backTimer = useRef<number | undefined>(undefined);
@@ -101,21 +110,31 @@ function ChappieRunner() {
         dur * 1000 - 250,
       );
     }
-    function onLaugh() {
-      const dur = actions.laugh?.getClip().duration ?? 3;
-      fadeTo("laugh", true);
+    function playOnce(name: string) {
+      const dur = actions[name]?.getClip().duration ?? 3;
+      fadeTo(name, true);
       backTimer.current = window.setTimeout(
         () => fadeTo("idle"),
         dur * 1000 - 250,
       );
     }
+    function onLaugh() {
+      playOnce("laugh");
+    }
+    // Generic one-shot: any clip by name ("chappie-play", {detail:{name}}).
+    function onPlay(e: Event) {
+      const name = (e as CustomEvent<{ name?: string }>).detail?.name;
+      if (name && actions[name]) playOnce(name);
+    }
     window.addEventListener("chappie-run", onRun);
     window.addEventListener("chappie-dance", onDance);
     window.addEventListener("chappie-laugh", onLaugh);
+    window.addEventListener("chappie-play", onPlay);
     return () => {
       window.removeEventListener("chappie-run", onRun);
       window.removeEventListener("chappie-dance", onDance);
       window.removeEventListener("chappie-laugh", onLaugh);
+      window.removeEventListener("chappie-play", onPlay);
       window.clearTimeout(backTimer.current);
     };
   }, [actions]);
@@ -236,3 +255,6 @@ export default function ChappieScene() {
 
 useGLTF.preload("/models/chappie-anim.glb");
 useGLTF.preload("/models/chappie-laugh.glb");
+useGLTF.preload("/models/chappie-yell.glb");
+useGLTF.preload("/models/chappie-charge.glb");
+useGLTF.preload("/models/chappie-yelling.glb");

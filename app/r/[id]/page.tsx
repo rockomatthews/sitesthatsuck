@@ -93,7 +93,7 @@ export default async function RoastPage({ params }: Props) {
       <p className="mono mt-12 text-center text-xs text-white/40">
         Roasted by{" "}
         <a
-          href="https://chappieworks.com?utm_source=sitesthatsuck&utm_medium=roast&utm_campaign=footer"
+          href="https://chappieworks.com?utm_source=chappiebarks&utm_medium=roast&utm_campaign=footer"
           className="text-[var(--gold)] hover:underline"
         >
           Chappie Works

@@ -83,7 +83,7 @@ export async function GET(
             }}
           >
             <div>{host}</div>
-            <div style={{ color: "#c9a437" }}>get roasted → sitesthatsuck</div>
+            <div style={{ color: "#c9a437" }}>nominate a victim → chappiebarks.com</div>
           </div>
         </div>
       </div>
