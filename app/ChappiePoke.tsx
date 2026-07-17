@@ -77,7 +77,8 @@ export function ChappiePoke({ roasts }: { roasts: PokeRoast[] }) {
         className="absolute inset-y-0 right-0 z-20 w-[42%] cursor-pointer bg-transparent sm:w-[38%]"
       />
       {bubble && (
-        <div className="pointer-events-auto absolute right-4 top-[12%] z-30 max-w-xs rounded-2xl rounded-br-sm border border-[var(--gold)]/40 bg-black/85 p-4 shadow-2xl backdrop-blur sm:right-[8%]">
+        // beside his shoulder, never over his face — tail points right at him
+        <div className="pointer-events-auto absolute left-4 right-4 top-[6%] z-30 rounded-2xl rounded-br-sm border border-[var(--gold)]/40 bg-black/85 p-4 shadow-2xl backdrop-blur sm:left-auto sm:right-[36%] sm:top-[16%] sm:max-w-xs">
           <p className="text-sm leading-relaxed text-white/90">{bubble.text}</p>
           {bubble.follow && (
             <a
