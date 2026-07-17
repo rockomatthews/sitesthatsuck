@@ -19,11 +19,12 @@ if (ffmpegPath) {
 // timbre steering), so the ROBOT is now made mechanically — ffmpeg pitches the
 // voice up (younger) and runs a robotizer chain (flanger + bitcrush + metallic
 // slapback). Bumping the prefix regenerates every cached voice.
-const VOICE_KEY = (id: string) => `voices/v3/${id}.mp3`;
+const VOICE_KEY = (id: string) => `voices/v4/${id}.mp3`;
 
-// Pitch up ~18% without changing speed (younger), then robotize.
+// v4: v3's coral base pitched +18% read as female. Now a young MALE base
+// (ash) with only a gentle +7% lift — boyish, not girlish — then robotize.
 const ROBOT_FILTER =
-  "asetrate=24000*1.18,aresample=24000,atempo=0.8475," +
+  "asetrate=24000*1.07,aresample=24000,atempo=0.9346," +
   "flanger=depth=6:regen=40:speed=0.6," +
   "acrusher=bits=10:mode=log:aa=1:mix=0.35," +
   "aecho=0.9:0.4:8:0.35," +
@@ -94,8 +95,9 @@ export async function ttsCached(
     },
     body: JSON.stringify({
       model: "gpt-4o-mini-tts",
-      // coral = brightest/youngest base; the robot comes from ffmpeg after.
-      voice: "coral",
+      // ash = young MALE base; a gentle pitch lift keeps him boyish without
+      // tipping feminine. The robot comes from ffmpeg after.
+      voice: "ash",
       input: script.slice(0, 2000),
       instructions: VOICE_INSTRUCTIONS,
       response_format: "mp3",
