@@ -18,7 +18,7 @@ export async function GET(req: Request) {
   const kind = searchParams.get("kind");
 
   if (kind === "follow") {
-    const r = await ttsCached("voices/v2/bark-follow.mp3", FOLLOW_LINE);
+    const r = await ttsCached("voices/v3/bark-follow.mp3", FOLLOW_LINE);
     if ("error" in r) return NextResponse.json(r, { status: 503 });
     return NextResponse.json({ url: r.url, text: FOLLOW_LINE });
   }
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
   }
   const host = new URL(rec.facts.finalUrl).hostname.replace(/^www\./, "");
   const text = `Chappie just looked at ${host}. ${rec.roast.score} out of one hundred. ${rec.roast.verdict}`;
-  const r = await ttsCached(`voices/v2/bark-${id}.mp3`, text);
+  const r = await ttsCached(`voices/v3/bark-${id}.mp3`, text);
   if ("error" in r) return NextResponse.json(r, { status: 503 });
   return NextResponse.json({ url: r.url, text });
 }

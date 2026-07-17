@@ -5,9 +5,59 @@
 
 import { put, list } from "@vercel/blob";
 
-// v2 prefix: bumping this regenerates every cached voice with the new
-// instructions (old v1 files just go stale in blob).
-const VOICE_KEY = (id: string) => `voices/v2/${id}.mp3`;
+import ffmpegPath from "ffmpeg-static";
+import ffmpeg from "fluent-ffmpeg";
+import { mkdtemp, rm, readFile, writeFile } from "fs/promises";
+import { tmpdir } from "os";
+import path from "path";
+
+if (ffmpegPath) {
+  ffmpeg.setFfmpegPath(ffmpegPath);
+}
+
+// v3: TTS alone barely moved the needle (the model largely ignores accent/
+// timbre steering), so the ROBOT is now made mechanically — ffmpeg pitches the
+// voice up (younger) and runs a robotizer chain (flanger + bitcrush + metallic
+// slapback). Bumping the prefix regenerates every cached voice.
+const VOICE_KEY = (id: string) => `voices/v3/${id}.mp3`;
+
+// Pitch up ~18% without changing speed (younger), then robotize.
+const ROBOT_FILTER =
+  "asetrate=24000*1.18,aresample=24000,atempo=0.8475," +
+  "flanger=depth=6:regen=40:speed=0.6," +
+  "acrusher=bits=10:mode=log:aa=1:mix=0.35," +
+  "aecho=0.9:0.4:8:0.35," +
+  "loudnorm=I=-16:TP=-1.5";
+
+async function robotize(mp3: Buffer): Promise<Buffer> {
+  const workDir = await mkdtemp(path.join(tmpdir(), "voice-"));
+  const inPath = path.join(workDir, "in.mp3");
+  const outPath = path.join(workDir, "out.mp3");
+  try {
+    await writeFile(inPath, mp3);
+    await new Promise<void>((resolve, reject) => {
+      const timeout = setTimeout(
+        () => reject(new Error("robotize timeout (30s)")),
+        30000,
+      );
+      ffmpeg(inPath)
+        .audioFilters(ROBOT_FILTER)
+        .format("mp3")
+        .on("end", () => {
+          clearTimeout(timeout);
+          resolve();
+        })
+        .on("error", (err) => {
+          clearTimeout(timeout);
+          reject(err);
+        })
+        .save(outPath);
+    });
+    return await readFile(outPath);
+  } finally {
+    await rm(workDir, { recursive: true, force: true }).catch(() => {});
+  }
+}
 
 const VOICE_INSTRUCTIONS = `Voice identity: a YOUNG robot — sounds like an excitable teenage boy made of metal. Higher-pitched, boyish, never deep or adult.
 Accent: THICK South African English (Johannesburg) — flat clipped vowels ("yes" sounds like "yis", "man" like "mahn"), clipped consonants, rising inflection at phrase ends. The accent must be unmistakable in every sentence.
@@ -44,7 +94,8 @@ export async function ttsCached(
     },
     body: JSON.stringify({
       model: "gpt-4o-mini-tts",
-      voice: "verse",
+      // coral = brightest/youngest base; the robot comes from ffmpeg after.
+      voice: "coral",
       input: script.slice(0, 2000),
       instructions: VOICE_INSTRUCTIONS,
       response_format: "mp3",
@@ -55,7 +106,16 @@ export async function ttsCached(
     console.error("[sitesthatsuck] tts failed", res.status, t.slice(0, 200));
     return { error: `tts ${res.status}` };
   }
-  const mp3 = Buffer.from(await res.arrayBuffer());
+  let mp3: Buffer = Buffer.from(await res.arrayBuffer());
+  try {
+    mp3 = await robotize(mp3);
+  } catch (err) {
+    // A failed robotize still ships the plain take — never silence.
+    console.error(
+      "[sitesthatsuck] robotize failed, using raw tts",
+      err instanceof Error ? err.message : err,
+    );
+  }
   const blob = await put(key, mp3, {
     access: "public",
     contentType: "audio/mpeg",

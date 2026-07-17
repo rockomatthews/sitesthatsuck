@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "fs/promises";
+import path from "path";
 import { readRoast } from "../../../lib/store";
 import { scoreLabel } from "../../../lib/roast";
 
@@ -7,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 // The share card — built to be screenshotted. Big score, savage verdict,
 // Chappie branding. This image IS the growth loop.
+
 export async function GET(
   _req: Request,
   ctx: { params: Promise<{ id: string }> },
@@ -15,6 +18,10 @@ export async function GET(
   const rec = await readRoast(id);
   if (!rec) return new Response("not found", { status: 404 });
   const host = new URL(rec.facts.finalUrl).hostname;
+  const head = await readFile(
+    path.join(process.cwd(), "public", "chappie-head.png"),
+  );
+  const headSrc = `data:image/png;base64,${head.toString("base64")}`;
 
   return new ImageResponse(
     (
@@ -34,15 +41,31 @@ export async function GET(
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div
             style={{
-              fontSize: 24,
-              letterSpacing: 6,
-              color: "#c9a437",
-              textTransform: "uppercase",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
             }}
           >
-            sites that suck · Chappie&rsquo;s verdict
+            <div
+              style={{
+                fontSize: 24,
+                letterSpacing: 6,
+                color: "#c9a437",
+                textTransform: "uppercase",
+              }}
+            >
+              {"sites that suck · Chappie's verdict"}
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={headSrc}
+              width={130}
+              height={130}
+              style={{ borderRadius: 16 }}
+              alt=""
+            />
           </div>
-          <div style={{ display: "flex", alignItems: "flex-end", marginTop: 40 }}>
+          <div style={{ display: "flex", alignItems: "flex-end", marginTop: 8 }}>
             <div
               style={{
                 fontSize: 180,
@@ -51,7 +74,7 @@ export async function GET(
                 lineHeight: 1,
               }}
             >
-              {rec.roast.score}
+              {String(rec.roast.score)}
             </div>
             <div
               style={{
@@ -70,8 +93,10 @@ export async function GET(
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
+          {/* single string child — satori rejects mixed text+expression nodes
+              without explicit display:flex */}
           <div style={{ fontSize: 44, fontWeight: 700, lineHeight: 1.25 }}>
-            &ldquo;{rec.roast.verdict}&rdquo;
+            {`“${rec.roast.verdict}”`}
           </div>
           <div
             style={{
